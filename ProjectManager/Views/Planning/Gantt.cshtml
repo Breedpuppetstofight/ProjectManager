@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "Gantt";
+}
+<script src="~/Scripts/d3/d3.js"></script>
+<h2>Gantt</h2>
+
+<div id="ganttContainer" style="width:800px; height:500px; overflow-x:auto">
+
+</div>
+
+@section scripts{
+<script src="~/Scripts/d3/d3.js"></script>
+    <script>
+
+        var startDate = new Date(2015, 02, 01);
+        var endDate = new Date(2015, 06, 31);
+        var days = d3.time.days(startDate, endDate);
+        var daysScale = d3.time.scale().domain([startDate, endDate]).range([0, days.length * 20]);
+
+        var svg = d3.select("#ganttContainer").append("svg")
+                                             .attr("width",1000)
+                                             .attr("height", 1000);
+
+        for (var i = 0; i < 10; i++) {
+            days.forEach(function (d, i) {
+                var day = svg.append("rect")
+                   .attr('x', function () { return daysScale(d)})
+                   .attr('y', 20)
+                   .attr('height', 20)
+                   .attr('width', 20)
+                   .style('fill', '#e6e6e6')
+                   .style('stroke', '#121212')
+                   .style('stroke-width', '1px')
+
+                day.append('text').text(d.toString().substr(0,1))
+            }
+        )};
+        
+    </script>
+}
