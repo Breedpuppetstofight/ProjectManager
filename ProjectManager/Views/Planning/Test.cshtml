@@ -21,7 +21,7 @@
          var now = new Date(Date.now());
          var count = 0;
          var daysOfYear = [];
-         for (var d = new Date(2015, 1, 1) ; d <= new Date(2015, 4, 31) ; d.setDate(d.getDate() + 1)) {
+         for (var d = new Date(2015, 1, 2) ; d <= new Date(2015, 4, 31) ; d.setDate(d.getDate() + 1)) {
              if (count % 7 == 0) {
                  var recHeader = svgContainer.append("rect")
                                 .attr("x", function () { return ((count + 1) * 20) })

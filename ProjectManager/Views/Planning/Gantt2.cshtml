@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "Test";
+}
+
+<style>
+.chart {
+	shape-rendering: crispEdges;
+	font: 10px sans-serif;
+}
+
+.day {
+  fill: #575757;
+  stroke: #808080;
+  /*margin-right: 2px;*/
+}
+
+.itemDay {
+  fill: white;
+  stroke: #808080;
+}
+
+.week {
+  fill: #575757;
+  stroke: #000;
+  /*margin-right: 2px;*/
+}
+
+.day + text {
+  fill: white;
+}
+
+.today {
+  fill: limegreen;
+}
+
+.today + text, 
+.holiday + text, 
+.vacation + text {
+  fill: black;
+}
+
+.holiday {
+  fill: lightblue;
+}
+
+.vacation {
+  fill: orange;
+}
+
+.weekend {
+  opacity: .5;
+}    
+</style>
+
+@section scripts{
+
+    <script src="~/Scripts/d3/d3.js"></script>
+    <script src="~/Scripts/moment.js"></script>
+    <script>
+
+     $(function () {
+         var WIDTH = 2500, HEIGHT = 450;
+         var cell = { width: 20, height: 20 };
+         var margin = { top: 20, left: 20, bottom: 20, right: 20 };
+         var width = WIDTH - margin.left - margin.right;
+         var height = HEIGHT - margin.top - margin.bottom;
+         var date = { start: '02/01/2015', end: '06/01/2015' };
+         var day = d3.time.format("%d");
+         var format = d3.time.format("%m/%d/%Y");
+         var vacations = ['02/25/2014', '02/28/2014', '03/05/2014', '03/14/2014'];
+         var today = [format(new Date())];
+         var holidays = ['02/28/2014', '02/14/2014', '03/1/2014'];
+         var days1 = d3.time.days(new Date(date.start), new Date(date.end));
+         var weeks1 = d3.time.weeks(new Date(date.start), new Date(date.end));
+
+
+         var chart = d3.select("#container")
+                       .append('svg:svg')
+                       .attr('width', width)
+                       .attr('height', height)
+                       .attr('class', 'chart');
+
+
+         var format = d3.time.format("%m/%d/%Y");
+
+         var weeks = chart
+                    .selectAll(".week")
+                    .data(weeks1)
+                    .enter()
+                    .append('svg:g');
+
+         weeks.append('svg:rect')
+                    .attr('width', cell.width * 7)
+                    .attr('height', cell.height)
+                    .attr('x', function (d, i) {
+                        return i * (cell.width * 7);
+                    })
+                      .attr('class', 'week')
+                    .append('title')
+                      .text(function (d) { return format(d); })
+                    .datum(format);
+
+         weeks.append('svg:text')
+           .attr('class', 'text')
+           .attr('width', cell.width * 7)
+           .attr('height', cell.height)
+           .attr('x', function (d, i) {
+               return i * (cell.width * 7) + (cell.width * 7) / 4 - 1;
+           })
+           .attr('y', 14)
+           .text(function (d) { return format(d); });
+
+         var days = chart
+             .selectAll(".day")
+             .data(days1)
+             .enter()
+             .append('svg:g');
+
+         days.append('svg:rect')
+           .attr('width', cell.width)
+           .attr('height', cell.height)
+           .attr('y', 20)
+           .attr('x', function (d, i) {
+               var day = d3.time.format("%d");
+               // console.log(day(d)); 
+               return i * cell.width;
+           })
+           .attr('class', 'day')
+           .append('title')
+             .text(function (d) { return format(d); })
+           .datum(format);
+
+         days.append('svg:text')
+           .attr('class', 'text')
+           .attr('width', cell.width)
+           .attr('height', cell.height)
+           .attr('x', function (d, i) {
+               return i * cell.width + cell.width / 4 - 1;
+           })
+           .attr('y', 34)
+           // .style('text-anchor', 'middle')
+           // .style('dominant-baseline', 'central')
+           .text(function (d) { var day = d3.time.format("%d"); return day(d); });
+
+         //highlight vacations
+         d3.selectAll('rect.day')
+           .data(vacations, function (d) { return new Date(d); })
+           .attr('class', 'day vacation')
+           .datum(function (d) { return d; });
+
+         //highlight holidays
+         /* d3.selectAll('rect.day')
+            .data(holidays, function(d) { return new Date(d)})
+            .attr('class', 'day holiday')
+            .datum(function(d) { return d;});
+         */
+         //highlight today
+         d3.selectAll('rect.day')
+           .data(today, function (d) { return new Date(d); })
+           .attr('class', 'day today');
+
+         d3.selectAll('rect.day')
+           .data(days1)
+           .filter(function (d) { var w = d3.time.format("%w"); return w(d) < 1; })
+           .style("opacity", "0.8");
+
+         var itemDays = chart
+                      .selectAll(".itemDay")
+                      .data(days1)
+                      .enter()
+                      .append('svg:g');
+
+         var ganttScaleX = d3.time.scale().domain([new Date(2015, 02, 01), new Date(2015, 06, 01)]).range([0, width]);
+
+         for (var i = 0; i < 10; i++) {
+
+             itemDays.append('svg:rect')
+               .attr('width', cell.width)
+               .attr('height', cell.height)
+               .attr('y', (20 * 2) + (20 * i))
+               .attr('x', ganttScaleX())
+               //.attr('x', function (d, i) {
+               //    var day = d3.time.format("%d");
+               //    // console.log(day(d)); 
+               //    return i * cell.width;
+               //})
+               .attr('class', 'itemDay')
+               .append('title')
+                 .text(function (d) { return format(d); })
+               .datum(format);
+         }
+
+         var task = chart
+           .selectAll(".task")
+           .data(days1)
+           .enter()
+           .append('svg:g');
+
+         task.append("rect")
+              .attr("class", "vacation")
+              .attr("x", function (d) { return ganttScaleX(new Date(2015, 04, 20)) })
+              .attr("y", 50)
+              .attr("height", cell.height)
+              .attr("width", function (d) { return ganttScaleX(new Date(2015, 04, 25)) - ganttScaleX(new Date(2015, 04, 20)) });
+
+     });
+
+    </script>
+};
+<h2>Test</h2>
+<div id="container"></div>

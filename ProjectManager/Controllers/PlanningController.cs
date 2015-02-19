@@ -17,5 +17,10 @@ namespace ProjectManager.Controllers
         {
             return View();
         }
+
+        public ActionResult Gantt()
+        {
+            return View();
+        }
 	}
 }
