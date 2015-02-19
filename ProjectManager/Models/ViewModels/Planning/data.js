@@ -1,31 +1,4 @@
-﻿var data = [
-{
-    "TaskName": "PaMMS Modernisation",
-    "Work": "1,938.5",
-    "Resource": "",
-    "Duration": "608.33?",
-    "Start": "15/01/15",
-    "Finish": "13/05/15",
-    "Predecessors": null
-},
-{
-    "TaskName": "   Phase 3",
-    "Work": "1,938.5",
-    "Resource": "",
-    "Duration": "608.33?",
-    "Start": "15/01/15",
-    "Finish": "13/05/15",
-    "Predecessors": null
-},
-{
-    "TaskName": "      Phase 3 - Development",
-    "Work": "1,938.5",
-    "Resource": "",
-    "Duration": "608.33?",
-    "Start": "15/01/15",
-    "Finish": "13/05/15",
-    "Predecessors": null
-},
+﻿var taskData = [
 {
     "TaskName": "WHS021-Re-ordering",
     "Work": "73.75",

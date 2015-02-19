@@ -22,5 +22,10 @@ namespace ProjectManager.Controllers
         {
             return View();
         }
+
+        public ActionResult Gantt2()
+        {
+            return View();
+        }
 	}
 }

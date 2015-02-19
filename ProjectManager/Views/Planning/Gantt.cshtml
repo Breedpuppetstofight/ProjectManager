@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "Gantt";
+}
+<script src="~/Scripts/d3/d3.js"></script>
+<h2>Gantt</h2>
+
+<div id="ganttContainer" style="width:1000px; height: 600px; overflow-x:auto">
+
+</div>
+<style>
+    .taskBox{
+        fill:#4C688B;
+        stroke: #455466;
+        stroke-width:1px;
+    }
+</style>
+@section scripts{
+<script src="~/Scripts/d3/d3.js"></script>
+<script src="~/Models/ViewModels/Planning/data.js"></script>
+    <script>
+
+        //Helpers
+        var format = d3.time.format("%d/%m/%Y");
+
+        
+        var startDate = d3.min(taskData, function (d) { return format.parse(d.Start); });
+        var endDate = d3.max(taskData, function (d) { return format.parse(d.Finish); });
+
+        // Arrays for top section
+        var days = d3.time.days(startDate, endDate);
+        var months = d3.time.months(startDate, endDate);
+
+        //Scales
+        var daysScale = d3.time.scale().domain([startDate, endDate]).range([0, days.length * 20]);
+        var monthsScale = d3.time.scale().domain([startDate, endDate]).range([0, days.length * 20]);
+
+        var brush = d3.svg.brush()
+            .x(daysScale)
+            .extent([startDate, endDate])
+            .on("brush", brushed);
+
+        var svg = d3.select("#ganttContainer").append("svg")
+                                             .attr("width", days.length * 20)
+                                             .attr("height", (taskData.length * 20) + (20 * 3))
+                                             .append("g");
+
+
+        function brushed() {
+            var extent0 = brush.extent(),
+                extent1;
+            console.log(d3.event.mode);
+            // if dragging, preserve the width of the extent
+            if (d3.event.mode === "move") {
+                var d0 = d3.time.day.round(extent0[0]),
+                    d1 = d3.time.day.offset(d0, Math.round((extent0[1] - extent0[0]) / 864e5));
+                extent1 = [d0, d1];
+                console.log("d0: " + d0 + "; d1:" + d1);
+                console.log(this);
+                d3.select(this).attr('x', daysScale(d0));
+            }
+        }
+
+
+        function pad(num, size) {
+            var s = num+"";
+            while (s.length < size) s = "0" + s;
+            return s;
+        }
+
+        function addDays(y) {
+            days.forEach(function (d) {
+                var day = svg.append("rect")
+                   .attr('x', function () { return daysScale(d) })
+                   .attr('y', y)
+                   .attr('height', 20)
+                   .attr('width', 20)
+                   .style('fill', 'white')
+                   .style('stroke', '#A2A7AD')
+                   .style('stroke-width', '1px')
+            });
+        }
+
+        months.forEach(function (d, i) {
+            var day = svg.append("rect")
+               .attr('x', function () { return monthsScale(d) })
+               .attr('y', 0)
+               .attr('height', 20)
+               .attr('width', function () { return months.length * 20; })
+               .style('fill', '#e6e6e6')
+               .style('stroke', '#A2A7AD')
+               .style('stroke-width', '1px')
+
+            svg.append("text")
+                .attr("x", function () { return daysScale(d) + 2 })
+                .attr("y", 20 + 15)
+                .text(pad(d.getDate(), 2));
+        });
+
+        days.forEach(function (d, i) {
+            var day = svg.append("rect")
+               .attr('x', function () { return daysScale(d) })
+               .attr('y', 20)
+               .attr('height', 20)
+               .attr('width', 20)
+               .style('fill', '#e6e6e6')
+               .style('stroke', '#A2A7AD')
+               .style('stroke-width', '1px')
+
+            svg.append("text")
+                .attr("x", function () { return daysScale(d) + 2 })
+                .attr("y", 20 + 15)
+                .text(pad(d.getDate(), 2));
+        });
+
+        taskData.forEach(function (d, i) {
+            var y = 40 + (20 * i);
+            console.log("Start: " + format.parse(d.Start) + "; End: " + format.parse(d.Finish));
+
+            addDays(y);
+
+            var newBox = svg.append("rect")
+                         .attr('id', 'task' + i)
+                         .attr('x', function () { return daysScale(format.parse(d.Start)) })
+                         .attr('y', y)
+                         .attr('rx', 3)
+                         .attr('ry', 3)
+                         .attr('height', 20)
+                         .attr('class', 'taskBox')
+                         .attr('cursor', 'move')
+                         .attr('width', daysScale(format.parse(d.Finish)) - daysScale(format.parse(d.Start)))
+                         //.call(drag)
+                         .call(brush);
+        });
+        
+        
+    </script>
+}

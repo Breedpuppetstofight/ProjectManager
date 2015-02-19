@@ -170,6 +170,7 @@
     <Content Include="Views\Planning\Index.cshtml" />
     <Content Include="Views\Planning\Test.cshtml" />
     <Content Include="Views\Planning\Gantt2.cshtml" />
+    <Content Include="Views\Planning\Gantt.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
