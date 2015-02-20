@@ -5,8 +5,27 @@
 <script src="~/Scripts/d3/d3.js"></script>
 <h2>Gantt</h2>
 
-<div id="ganttContainer" style="width:1000px; height: 600px; overflow-x:auto">
+<div style="width:100%; height: 500px; overflow:auto">
+    <div id="taskList" style="float:left; width:40%; padding-top: 39px;">
 
+        <div style="border-top: 1px solid; border-color: #A2A7AD; height: 20px; font-size: smaller">
+            @*<span data-bind="text: TaskName"></span>
+            <span data-bind="text: Start"></span>
+            <span data-bind="text: Finish"></span>*@
+            <table style="width:100%">
+                <tbody data-bind="foreach: Tasks">
+                    <tr style="height: 20px; border-bottom: 1px solid #A2A7AD; border-right: 2px solid #A2A7AD; ">
+                        <td data-bind="text: TaskName"></td>
+                        <td data-bind="text: Start"></td>
+                        <td data-bind="text: Finish"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div> 
+    </div>
+    <div id="ganttContainer" style="width: 60%; overflow-x: auto">
+
+    </div>
 </div>
 <style>
     .taskBox{
@@ -31,36 +50,16 @@
         var days = d3.time.days(startDate, endDate);
         var months = d3.time.months(startDate, endDate);
 
+        console.log(months)
+
         //Scales
         var daysScale = d3.time.scale().domain([startDate, endDate]).range([0, days.length * 20]);
         var monthsScale = d3.time.scale().domain([startDate, endDate]).range([0, days.length * 20]);
-
-        var brush = d3.svg.brush()
-            .x(daysScale)
-            .extent([startDate, endDate])
-            .on("brush", brushed);
 
         var svg = d3.select("#ganttContainer").append("svg")
                                              .attr("width", days.length * 20)
                                              .attr("height", (taskData.length * 20) + (20 * 3))
                                              .append("g");
-
-
-        function brushed() {
-            var extent0 = brush.extent(),
-                extent1;
-            console.log(d3.event.mode);
-            // if dragging, preserve the width of the extent
-            if (d3.event.mode === "move") {
-                var d0 = d3.time.day.round(extent0[0]),
-                    d1 = d3.time.day.offset(d0, Math.round((extent0[1] - extent0[0]) / 864e5));
-                extent1 = [d0, d1];
-                console.log("d0: " + d0 + "; d1:" + d1);
-                console.log(this);
-                d3.select(this).attr('x', daysScale(d0));
-            }
-        }
-
 
         function pad(num, size) {
             var s = num+"";
@@ -128,10 +127,26 @@
                          .attr('height', 20)
                          .attr('class', 'taskBox')
                          .attr('cursor', 'move')
-                         .attr('width', daysScale(format.parse(d.Finish)) - daysScale(format.parse(d.Start)))
-                         //.call(drag)
-                         .call(brush);
+                         .attr('width', daysScale(format.parse(d.Finish)) - daysScale(format.parse(d.Start)));
+
+            svg.append("text")
+                .attr("x", function () { return daysScale(format.parse(d.Start)) + 2 })
+                .attr("y", y + 15)
+                .style("fill", "white")
+                .text(d.Work);
+
         });
+
+        var viewModel = function(){
+            var self = this;
+
+            self.Tasks = ko.observableArray(taskData);
+        }
+
+        var dom = document.getElementById("taskList");
+
+        ko.applyBindings(new viewModel(), dom);
+
         
         
     </script>
